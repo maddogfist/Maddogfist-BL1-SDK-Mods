@@ -2,12 +2,13 @@
 name = "SLAB Qol"
 version = "1.0.0"
 authors = [{ name = "Mad Dog Fist" }]
-description = "Makes Sting Like a Bee better. Hold down -Disable Lunge- button to deactivate dash."
+description = "Makes Sting Like a Bee better, allows dashing even when a wall is in the way. Hold down -Disable Lunge- button to deactivate dash. Option for allowing dashing in the air."
 
 [tool.sdkmod]
 name = "SLAB Qol"
 mod_type = "Standard" # or "Library"
 supported_games = "BL1"
 coop_support = "Unknown"
+download = "https://github.com/maddogfist/Maddogfist-BL1-SDK-Mods/raw/refs/heads/main/SLABQOL/SLABQOL.sdkmod"
 auto_enable = "False"
 license = {name = "GPL3", url = "https://choosealicense.com/licenses/gpl-3.0/" }
