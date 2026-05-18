@@ -1,20 +1,24 @@
 import unrealsdk #type: ignore
-from unrealsdk import find_all #type: ignore
+from unrealsdk import find_enum #type: ignore
 from unrealsdk.hooks import Type, add_hook, remove_hook, Block #type: ignore
 from unrealsdk.unreal import UObject, WrappedStruct, BoundFunction, UScriptStruct#type: ignore
 from mods_base import hook, get_pc, ENGINE, EInputEvent, keybind, build_mod #type: ignore
 
+ELEMENTAL_SKILL_TYPE = find_enum("EPlayerSkillType").EPST_Elemental
+
 currentArtifactIndex = 0
                     
-def getSkillHelper():
-    skillhelper = find_all("SkillTreeGFxHelper")
-    if skillhelper is None or len(skillhelper) < 2:
-        return None
-    return skillhelper[1]
+def getArtifactList():
+    index = 0
+    artifacts = [{"SkillIndex": -1, "Name": "No Artifact"}]
+    for skill in get_pc().PlayerSkills:
+        if skill.Type == ELEMENTAL_SKILL_TYPE and skill.Grade > 0:
+            artifact = {"SkillIndex": index, "Name": skill.Definition.SkillName}
+            artifacts.append(artifact)
+        index += 1
+    return artifacts
 
 def equipArtifact(ArtifactSkillIndex):
-    if get_pc is None:
-        return
     if ArtifactSkillIndex == -1:
         get_pc().ServerUnequipElementalSkill(get_pc().EquippedElementalSkillPlayerSkillIndex)
         return
@@ -44,13 +48,7 @@ def NextArtifact():
     if get_pc() is None:
         return
     
-    helper = getSkillHelper()
-    if helper is None:
-        print("No SkillHelper found")
-        get_pc().myHUD.GetHUDMovie().AddCriticalText(0, "Open up Skill Menu to activate Selector", 3.0, get_pc().myHUD.WhiteColor, get_pc().myHUD.WPRI)
-        return
-
-    artifacts = helper.ArtifactList
+    artifacts = getArtifactList()
     if artifacts is None or len(artifacts) == 0:
         print("No Artifacts")
         return
@@ -59,9 +57,9 @@ def NextArtifact():
     if currentArtifactIndex >= len(artifacts):
         currentArtifactIndex = 0
         
-    equipArtifact(artifacts[currentArtifactIndex].SkillIndex)
+    equipArtifact(artifacts[currentArtifactIndex]["SkillIndex"])
     
-    message = formatMessage(artifacts[currentArtifactIndex].Name)
+    message = formatMessage(artifacts[currentArtifactIndex]["Name"])
 
     get_pc().myHUD.GetHUDMovie().AddCriticalText(0, message, 3.0, get_pc().myHUD.WhiteColor, get_pc().myHUD.WPRI)
     return
@@ -73,13 +71,7 @@ def PrevArtifact():
     if get_pc() is None:
         return
     
-    helper = getSkillHelper()
-    if helper is None:
-        print("No SkillHelper found")
-        get_pc().myHUD.GetHUDMovie().AddCriticalText(0, "Open up Skill Menu to activate Selector", 3.0, get_pc().myHUD.WhiteColor, get_pc().myHUD.WPRI)
-        return
-
-    artifacts = helper.ArtifactList
+    artifacts = getArtifactList()
     if artifacts is None or len(artifacts) == 0:
         print("No Artifacts")
         return
@@ -88,11 +80,11 @@ def PrevArtifact():
     if currentArtifactIndex < 0:
         currentArtifactIndex = len(artifacts)-1
         
-    equipArtifact(artifacts[currentArtifactIndex].SkillIndex)
+    equipArtifact(artifacts[currentArtifactIndex]["SkillIndex"])
     
-    message = formatMessage(artifacts[currentArtifactIndex].Name)
+    message = formatMessage(artifacts[currentArtifactIndex]["Name"])
 
     get_pc().myHUD.GetHUDMovie().AddCriticalText(0, message, 3.0, get_pc().myHUD.WhiteColor, get_pc().myHUD.WPRI)
     return
-    
+
 build_mod(keybinds=[NextArtifact, PrevArtifact])
